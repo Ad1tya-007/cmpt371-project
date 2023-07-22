@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 import java.util.Random;
 import util.Constants;
 import util.Drawer;
@@ -34,7 +35,7 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void startGame() {
-        createApple();
+        spawnApple();
         running = true;
         timer = new Timer(constants.DELAY, this);
         timer.start();
@@ -57,7 +58,7 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    public void createApple() {
+    public void spawnApple() {
         appleX = random.nextInt((int) (constants.SCREEN_WIDTH / constants.UNIT_SIZE))
                 * constants.UNIT_SIZE;
         appleY = random.nextInt((int) (constants.SCREEN_HEIGHT /
@@ -90,7 +91,7 @@ public class GamePanel extends JPanel implements ActionListener {
         if ((x[0] == appleX) && (y[0] == appleY)) {
             bodyParts++;
             score++;
-            createApple();
+            spawnApple();
         }
     }
 
