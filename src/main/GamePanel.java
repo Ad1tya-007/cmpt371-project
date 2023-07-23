@@ -4,13 +4,12 @@ import javax.swing.*;
 
 import java.util.Random;
 import util.Constants;
-import util.Drawer;
+import util.Sound;
 
 public class GamePanel extends JPanel implements ActionListener {
 
     Constants constants = new Constants();
-    Drawer drawer = new Drawer();
-    // Apple apple = new Apple();
+    Sound sound = new Sound();
 
     // these two hold x and y coordinates of the snakes and apple
     final int x[] = new int[constants.GAME_UNITS];
@@ -48,9 +47,9 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void draw(Graphics G) {
         if (running) {
-            // drawer.drawLines(G);
-            drawer.drawApple(G, appleX, appleY);
-            drawer.drawSnake(G, x, y, bodyParts);
+            drawLines(G);
+            drawApple(G, appleX, appleY);
+            drawSnake(G, x, y, bodyParts);
             displayScore(G);
         } else {
             displayScore(G);
@@ -89,6 +88,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void checkApple() {
         if ((x[0] == appleX) && (y[0] == appleY)) {
+            sound.play("src/main/res/apple_eaten_sound.wav");
             bodyParts++;
             score++;
             spawnApple();
@@ -99,6 +99,7 @@ public class GamePanel extends JPanel implements ActionListener {
         // check if head collides with body
         for (int i = bodyParts; i > 0; i--) {
             if ((x[0] == x[i]) && (y[0] == y[i])) {
+                sound.play("src/main/res/snake_collision_sound.wav");
                 running = false;
             }
         }
@@ -106,18 +107,22 @@ public class GamePanel extends JPanel implements ActionListener {
         // check if head collides with border
         // left border
         if (x[0] < 0) {
+            sound.play("src/main/res/snake_collision_sound.wav");
             running = false;
         }
         // right border
         if (x[0] > constants.SCREEN_WIDTH - 1) {
+            sound.play("src/main/res/snake_collision_sound.wav");
             running = false;
         }
         // top border
         if (y[0] < 0) {
+            sound.play("src/main/res/snake_collision_sound.wav");
             running = false;
         }
         // bottom border
         if (y[0] > constants.SCREEN_HEIGHT - 1) {
+            sound.play("src/main/res/snake_collision_sound.wav");
             running = false;
         }
 
@@ -126,13 +131,38 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    public void drawLines(Graphics G) {
+        // draw the board lines
+        for (int i = 0; i < (int) (constants.SCREEN_HEIGHT / constants.UNIT_SIZE); i++) {
+            G.setColor(Color.gray);
+            G.drawLine(i * constants.UNIT_SIZE, 0, i * constants.UNIT_SIZE, constants.SCREEN_HEIGHT);
+            G.drawLine(0, i * constants.UNIT_SIZE, constants.SCREEN_WIDTH, i * constants.UNIT_SIZE);
+        }
+    }
+
+    public void drawApple(Graphics G, int x, int y) {
+        // draw the apple
+        G.setColor(Color.red);
+        G.fillOval(x, y, constants.UNIT_SIZE, constants.UNIT_SIZE);
+    }
+
+    public void drawSnake(Graphics G, int x[], int y[], int lenghtOfSnake) {
+        // draw the snake
+        for (int i = 0; i < lenghtOfSnake; i++) {
+            G.setColor(Color.green);
+            G.fillRect(x[i], y[i], constants.UNIT_SIZE, constants.UNIT_SIZE);
+        }
+    }
+
     public void displayScore(Graphics G) {
         G.setColor(Color.white);
         G.setFont(new Font("Arial", Font.BOLD, 20));
         FontMetrics metrics = getFontMetrics(G.getFont());
-        G.drawString("User: " + "test", (constants.SCREEN_WIDTH / 4 - metrics.stringWidth("User: " + "test") / 2),
+        G.drawString("User: " + "test", (constants.SCREEN_WIDTH / 4 -
+                metrics.stringWidth("User: " + "test") / 2),
                 G.getFont().getSize());
-        G.drawString("Score: " + score, ((3 * constants.SCREEN_WIDTH) / 4 - metrics.stringWidth("Score: " + score) / 2),
+        G.drawString("Score: " + score, ((3 * constants.SCREEN_WIDTH) / 4 -
+                metrics.stringWidth("Score: " + score) / 2),
                 G.getFont().getSize());
     }
 
