@@ -12,13 +12,19 @@ import main.util.Constants;
 
 public class Client extends JFrame {
     private int id;
-    private int score;
+    private int score; // current Users score
     private ClientConnect cc;
+
+    // private int array of the user's snake = []
+    // private int length;
+
+    // private int array of the other player snake = []
 
     private Constants constants = new Constants();
 
     public Client() {
         score = 0;
+        // length = 3;
     }
 
     // Set up gameboard interface
@@ -38,6 +44,15 @@ public class Client extends JFrame {
     private void connect_Sever() {
         cc = new ClientConnect();
     }
+
+    /*
+     * some functions to implement
+     * spawnApple() -> already implemented
+     * checkIfAppleIsEaten() -> already implemented
+     * checkCollisionWithWall() -> already implemented
+     * checkCollisionWithOtherSnake() -> this has to be implemented
+     * moveSnake() -> already implemented
+     */
 
     // Set up client connection
     private class ClientConnect {
@@ -64,6 +79,8 @@ public class Client extends JFrame {
         Client c = new Client();
         c.connect_Sever();
         c.setUpBoard();
+        // call all the functions here
+        // check actionPerformed()
     }
 
 }

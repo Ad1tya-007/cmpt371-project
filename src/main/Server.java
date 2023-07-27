@@ -72,13 +72,18 @@ public class Server {
                 out.flush();
 
                 // Handle multiple players
-                // while (true) {
-                // if (playerID == 1) {
-                // System.out.println("Player 1's snake has done something");
-                // } else {
-                // System.out.println("Player 2's snake has done something");
-                // }
-                // }
+                while (true) {
+                    if (playerID == 1) {
+                        // System.out.println("Player 1's snake has done something");
+                    } else {
+                        // System.out.println("Player 2's snake has done something");
+                    }
+
+                    // check for collision of snake
+                    // if yes then break else continue
+
+                }
+
             } catch (IOException ex) {
                 System.out.println("Player has left the server");
             }
