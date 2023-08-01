@@ -186,6 +186,34 @@ public class GamePanel extends JPanel implements ActionListener {
         repaint();
     }
 
+    public void restartGame() {
+        bodyParts = 3;
+        applesEaten = 0;
+        direction = 'R';
+        score = 0;
+        running = true;
+        for (int i = 0; i < x.length; i++) {
+            x[i] = 0;
+            y[i] = 0;
+        }
+
+        spawnApple();
+        timer.restart();
+
+          // Revalidate and repaint the panel
+        revalidate();
+        repaint();
+
+        // Request focus for this panel
+        requestFocusInWindow();
+
+        // Optionally, re-add the KeyListener if needed
+        addKeyListener(new MyKeyAdapter());
+        
+
+        // You may also want to reset the x and y coordinates of the snake here.
+    }
+
     public class MyKeyAdapter extends KeyAdapter {
 
         @Override
