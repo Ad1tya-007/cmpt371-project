@@ -2,6 +2,8 @@ package main;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameServer {
     private ServerSocket ss;
@@ -15,7 +17,9 @@ public class GameServer {
     private WriteToClient p1WTC;
     private WriteToClient p2WTC;
 
-    private double p1x, p1y, p2x, p2y;
+    private ArrayList<double[]> p1Positions = new ArrayList<>();
+    private ArrayList<double[]> p2Positions = new ArrayList<>();
+
 
     public GameServer() {
         System.out.println("Game Server started");
@@ -23,12 +27,10 @@ public class GameServer {
         maxPlayers = 2;
 
         // intial coordiantes of snakes
-        p1x = 100;
-        p1y = 400;
-
-        // intial coordiantes of snakes
-        p2x = 490;
-        p2y = 400;
+        double[] p1InitialPos = {100, 400}; // x and y coordinates for player 1
+        double[] p2InitialPos = {500, 400}; // x and y coordinates for player 2
+        p1Positions.add(p1InitialPos);
+        p2Positions.add(p2InitialPos);
 
         try {
             ss = new ServerSocket(2321);
@@ -100,13 +102,16 @@ public class GameServer {
         public void run() {
             try {
                 while (true) {
-                    if (playerID == 1) {
-                        p1x = dataIn.readDouble();
-                        p1y = dataIn.readDouble();
-                    }
-                    if (playerID == 2) {
-                        p2x = dataIn.readDouble();
-                        p2y = dataIn.readDouble();
+                    int numSegments = dataIn.readInt(); // Reading the number of segments
+                    ArrayList<double[]> positions = playerID == 1 ? p1Positions : p2Positions;
+                    synchronized (positions) {
+                        positions.clear(); // Clear previous positions
+                        for (int i = 0; i < numSegments; i++) {
+                            double[] position = new double[2];
+                            position[0] = dataIn.readDouble(); // x coordinate
+                            position[1] = dataIn.readDouble(); // y coordinate
+                            positions.add(position);
+                        }
                     }
                 }
             } catch (IOException ex) {
@@ -128,27 +133,24 @@ public class GameServer {
         public void run() {
             try {
                 while (true) {
-                    if (playerID == 1) {
-                        dataOut.writeDouble(p2x);
-                        dataOut.writeDouble(p2y);
-                        dataOut.flush();
+                    ArrayList<double[]> positions = playerID == 1 ? p2Positions : p1Positions;
+                    synchronized (positions) {
+                        if (!positions.isEmpty()) {
+                            dataOut.writeInt(positions.size()); // Sending the number of positions
+                            for (double[] position : positions) {
+                                dataOut.writeDouble(position[0]);
+                                dataOut.writeDouble(position[1]);
+                            }
+                            dataOut.flush();
+                        }
                     }
-                    if (playerID == 2) {
-                        dataOut.writeDouble(p1x);
-                        dataOut.writeDouble(p1y);
-                        dataOut.flush();
-                    }
-                    try {
-                        Thread.sleep(25); // prevent overwhelming the network
-                    } catch (InterruptedException ex) {
-                        System.out.println("InterruptedException from WriteToClient run()");
-                    }
+                    Thread.sleep(25); // prevent overwhelming the network
                 }
-            } catch (IOException ex) {
-                System.out.println("IOexception from WriteToClient run()");
+            } catch (IOException | InterruptedException ex) {
+                System.out.println("Exception from WriteToClient run()");
             }
         }
-
+        
         public void sendStartMessage() {
             try {
                 dataOut.writeUTF("We now have two players. Start the match!");

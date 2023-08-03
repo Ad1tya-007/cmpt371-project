@@ -5,9 +5,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import main.util.Constants;
+import java.awt.geom.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList; // Imported ArrayList class
 
 public class ClientFrame extends JFrame {
     private int width, height, size;
@@ -56,36 +58,40 @@ public class ClientFrame extends JFrame {
 
     private void createSprites() {
         if (playerID == 1) {
-            mySnake = new SnakeSprite(100, 400, size, Color.BLUE);
-            enemySnake = new SnakeSprite(490, 400, size, Color.GREEN);
+            mySnake = new SnakeSprite(100, 400, size, Color.BLUE, 3, SnakeSprite.Direction.RIGHT);
+            enemySnake = new SnakeSprite(500, 400, size, Color.GREEN, 3, SnakeSprite.Direction.LEFT);
         }
         if (playerID == 2) {
-            enemySnake = new SnakeSprite(100, 400, size, Color.BLUE);
-            mySnake = new SnakeSprite(490, 400, size, Color.GREEN);
+            enemySnake = new SnakeSprite(100, 400, size, Color.BLUE, 3, SnakeSprite.Direction.RIGHT);
+            mySnake = new SnakeSprite(500, 400, size, Color.GREEN, 3, SnakeSprite.Direction.LEFT);
         }
 
     }
 
+    private void drawGrid(Graphics2D G) {
+        for (int i = 0; i < width; i += size) {
+            G.drawLine(i, 0, i, height);
+        }
+        for (int i = 0; i < height; i += size) {
+            G.drawLine(0, i, width, i);
+        }
+    }
+
     private void setUpAnimationTimer() {
-        int interval = 10;
+        int interval = 100;
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                double speed = 5;
                 if (up) {
-                    // System.out.println(mySnake.getX() + "&" + mySnake.getY());
-                    mySnake.snakeMoveVertical(-speed);
+                    mySnake.snakeMoveVertical(-1);
                 }
                 if (down) {
-                    // System.out.println(mySnake.getX() + "&" + mySnake.getY());
-                    mySnake.snakeMoveVertical(+speed);
+                    mySnake.snakeMoveVertical(1);
                 }
                 if (right) {
-                    // System.out.println(mySnake.getX() + "&" + mySnake.getY());
-                    mySnake.snakeMoveHorizontal(+speed);
+                    mySnake.snakeMoveHorizontal(1);
                 }
                 if (left) {
-                    // System.out.println(mySnake.getX() + "&" + mySnake.getY());
-                    mySnake.snakeMoveHorizontal(-speed);
+                    mySnake.snakeMoveHorizontal(-1);
                 }
                 dc.repaint();
             }
@@ -162,6 +168,7 @@ public class ClientFrame extends JFrame {
     private class DrawingComponent extends JComponent {
         protected void paintComponent(Graphics G) {
             Graphics2D G2D = (Graphics2D) G;
+            drawGrid(G2D);
             enemySnake.drawSnake(G2D);
             mySnake.drawSnake(G2D);
         }
@@ -179,8 +186,15 @@ public class ClientFrame extends JFrame {
             try {
                 while (true) {
                     if (enemySnake != null) {
-                        enemySnake.setX(dataIn.readDouble());
-                        enemySnake.setY(dataIn.readDouble());
+                        int numSegments = dataIn.readInt(); // Reading the number of segments
+                        ArrayList<Point2D.Double> segments = new ArrayList<>();
+                        for (int i = 0; i < numSegments; i++) {
+                            double x = dataIn.readDouble(); // x coordinate
+                            double y = dataIn.readDouble(); // y coordinate
+                            segments.add(new Point2D.Double(x, y));
+                        }
+                        // Update enemySnake with the new segments d
+                        enemySnake.setSegments(segments);
                     }
                 }
             } catch (IOException ex) {
@@ -215,28 +229,27 @@ public class ClientFrame extends JFrame {
 
         public void run() {
             try {
-                // keep updating server about your snakes location
                 while (true) {
                     if (mySnake != null) {
-                        dataOut.writeDouble(mySnake.getX());
-                        dataOut.writeDouble(mySnake.getY());
+                        ArrayList<Point2D.Double> segments = mySnake.getSegments();
+                        dataOut.writeInt(segments.size()); // Sending the number of segments
+                        for (Point2D.Double segment : segments) {
+                            dataOut.writeDouble(segment.x);
+                            dataOut.writeDouble(segment.y);
+                        }
                         dataOut.flush();
-                    }
-                    try {
-                        Thread.sleep(25); // prevent overwhelming the network
-                    } catch (InterruptedException ex) {
-                        System.out.println("InterruptedException from WriteToServer run()");
                     }
                 }
             } catch (IOException ex) {
                 System.out.println("IOexception from WriteToServer run()");
             }
-        }
+        }        
     }
 
     public static void main(String[] args) {
         ClientFrame cf = new ClientFrame();
         cf.connectToServer();
+        cf.createSprites(); 
         cf.setUpGUI();
     }
 
