@@ -143,6 +143,7 @@ public class ClientFrame extends JFrame {
     private void connectToServer() {
         try {
             socket = new Socket("localhost", 2321);
+            // socket = new Socket(InetAddress.getByName("PUT IP ADDRESS HERE"), 2321);
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             playerID = in.readInt();
