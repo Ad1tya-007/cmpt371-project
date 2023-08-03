@@ -1,4 +1,3 @@
 # cmpt371-project
 
-hi its andy
-hi :)
+To run, use ./start_game.sh in the "src" folder
