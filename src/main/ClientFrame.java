@@ -9,10 +9,12 @@ import java.awt.geom.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.Random;
 import java.util.ArrayList; // Imported ArrayList class
 
 public class ClientFrame extends JFrame {
     private int width, height, size;
+    double appleX, appleY;
     private Container contentPane;
 
     private SnakeSprite mySnake;
@@ -29,6 +31,7 @@ public class ClientFrame extends JFrame {
     private WriteToServer wts;
 
     private Constants constant = new Constants();
+    Random random= new Random();
 
     public ClientFrame() {
         width = constant.SCREEN_WIDTH;
@@ -54,6 +57,25 @@ public class ClientFrame extends JFrame {
         this.setResizable(false);
         setUpAnimationTimer();
         setUpKeyListener();
+        if (playerID== 1) {
+            spawnApple();
+        }
+    }
+
+    public void spawnApple() {
+        appleX = random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
+                * constant.UNIT_SIZE;
+        appleY = random.nextInt((int) (constant.SCREEN_HEIGHT /
+                constant.UNIT_SIZE)) * constant.UNIT_SIZE;
+    }
+
+    public void checkApple() {
+        if ((mySnake.getX() == appleX) && (mySnake.getY() == appleY)) {
+            //sound.play("src/main/res/apple_eaten_sound.wav");
+            mySnake.score();
+            mySnake.addSegment();
+            spawnApple();
+        }
     }
 
     private void createSprites() {
@@ -94,6 +116,7 @@ public class ClientFrame extends JFrame {
                     mySnake.snakeMoveHorizontal(-1);
                 }
                 dc.repaint();
+                checkApple();
             }
         };
         animationTimer = new Timer(interval, al);
@@ -171,6 +194,8 @@ public class ClientFrame extends JFrame {
             drawGrid(G2D);
             enemySnake.drawSnake(G2D);
             mySnake.drawSnake(G2D);
+            G.setColor(Color.red);
+            G.fillOval((int)appleX, (int)appleY, constant.UNIT_SIZE, constant.UNIT_SIZE);
         }
     }
 
@@ -195,6 +220,8 @@ public class ClientFrame extends JFrame {
                         }
                         // Update enemySnake with the new segments d
                         enemySnake.setSegments(segments);
+                        appleX= dataIn.readDouble();
+                        appleY= dataIn.readDouble();
                     }
                 }
             } catch (IOException ex) {
@@ -237,19 +264,21 @@ public class ClientFrame extends JFrame {
                             dataOut.writeDouble(segment.x);
                             dataOut.writeDouble(segment.y);
                         }
+                        dataOut.writeDouble(appleX);
+                        dataOut.writeDouble(appleY);
                         dataOut.flush();
                     }
                 }
             } catch (IOException ex) {
                 System.out.println("IOexception from WriteToServer run()");
             }
-        }        
+        }
     }
 
     public static void main(String[] args) {
         ClientFrame cf = new ClientFrame();
         cf.connectToServer();
-        cf.createSprites(); 
+        cf.createSprites();
         cf.setUpGUI();
     }
 
