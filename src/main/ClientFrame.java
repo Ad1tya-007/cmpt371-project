@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import main.util.Constants;
+import main.util.*;
 import java.awt.geom.*;
 
 import java.io.*;
@@ -29,6 +29,7 @@ public class ClientFrame extends JFrame {
     private WriteToServer wts;
 
     private Constants constant = new Constants();
+    Sounds sfx = new Sounds();
 
     public ClientFrame() {
         width = constant.SCREEN_WIDTH;
@@ -77,6 +78,61 @@ public class ClientFrame extends JFrame {
         }
     }
 
+    private boolean checkCollisions() {
+        // Get the head of the player's snake
+        Point2D.Double myHead = mySnake.getSegments().get(0);
+    
+        // Check for collision with the border
+        if (myHead.x < 0 || myHead.x >= width || myHead.y < 0 || myHead.y >= height) {
+            sfx.play("src/main/res/collision_wall.wav");
+            return true; // Collision with border
+        }
+    
+        // Check for collision with the opponent's snake
+        ArrayList<Point2D.Double> enemySegments = enemySnake.getSegments();
+        Point2D.Double enemyHead = enemySegments.get(0); // Get the head of the opponent's snake
+        for (int i = 0; i < enemySegments.size(); i++) {
+            Point2D.Double enemySegment = enemySegments.get(i);
+            if (myHead.equals(enemySegment)) {
+                sfx.play("src/main/res/collision_snake.wav");
+                return true; // Collision with opponent's snake body
+            }
+        }
+        // Check for collision with the opponent's snake head
+        if (myHead.equals(enemyHead)) {
+            sfx.play("src/main/res/collision_snake.wav");
+            return true; // Collision with opponent's snake head
+        }
+
+        // Check for collision with own snake
+        ArrayList<Point2D.Double> mySegments = mySnake.getSegments();
+        // Start checking from index 1 to avoid checking with the head itself
+        for (int i = 1; i < mySegments.size(); i++) {
+            Point2D.Double mySegment = mySegments.get(i);
+            if (myHead.equals(mySegment)) {
+                sfx.play("src/main/res/collision_snake.wav");
+                return true; // Collision with own snake body
+            }
+        }
+
+    
+        return false; // No collisions
+    }
+
+    private void gameOver(){
+        //stop animation timer
+        animationTimer.stop();
+
+        //play game over music
+        sfx.play("src/main/res/game_over.wav");
+
+        JOptionPane.showMessageDialog(this, "Game Over", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        
+        //stop background music
+        sfx.stop();
+        this.dispose();
+    }
+
     private void setUpAnimationTimer() {
         int interval = 100;
         ActionListener al = new ActionListener() {
@@ -93,6 +149,12 @@ public class ClientFrame extends JFrame {
                 if (left) {
                     mySnake.snakeMoveHorizontal(-1);
                 }
+
+                // Check for collisions
+                if (checkCollisions()) {
+                    gameOver();
+                }
+
                 dc.repaint();
             }
         };
@@ -206,6 +268,11 @@ public class ClientFrame extends JFrame {
             try {
                 String startMessage = dataIn.readUTF();
                 System.out.println("Message from server: " + startMessage);
+                
+                //play game start sound
+                sfx.play("src/main/res/game_start.wav");
+                //play background music
+                sfx.loop("src/main/res/background.wav");
 
                 // after receiving start message, start the thread
 
