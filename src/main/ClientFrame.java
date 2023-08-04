@@ -220,8 +220,8 @@ public class ClientFrame extends JFrame {
                         }
                         // Update enemySnake with the new segments d
                         enemySnake.setSegments(segments);
-                        appleX= dataIn.readDouble();
-                        appleY= dataIn.readDouble();
+                        //appleX= dataIn.readDouble();
+                        //appleY= dataIn.readDouble();
                     }
                 }
             } catch (IOException ex) {
@@ -264,8 +264,8 @@ public class ClientFrame extends JFrame {
                             dataOut.writeDouble(segment.x);
                             dataOut.writeDouble(segment.y);
                         }
-                        dataOut.writeDouble(appleX);
-                        dataOut.writeDouble(appleY);
+                        //dataOut.writeDouble(appleX);
+                        //dataOut.writeDouble(appleY);
                         dataOut.flush();
                     }
                 }
