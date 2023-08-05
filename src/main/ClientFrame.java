@@ -41,6 +41,8 @@ public class ClientFrame extends JFrame {
         down = false;
         right = false;
         left = false;
+        appleX = (double)constant.SCREEN_WIDTH/2;
+        appleY = (double)constant.SCREEN_WIDTH/2;
     }
 
     public void setUpGUI() {
@@ -57,15 +59,12 @@ public class ClientFrame extends JFrame {
         this.setResizable(false);
         setUpAnimationTimer();
         setUpKeyListener();
-        if (playerID== 1) {
-            spawnApple();
-        }
     }
 
     public void spawnApple() {
-        appleX = random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
+        appleX = (double)random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
                 * constant.UNIT_SIZE;
-        appleY = random.nextInt((int) (constant.SCREEN_HEIGHT /
+        appleY = (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
                 constant.UNIT_SIZE)) * constant.UNIT_SIZE;
     }
 
@@ -220,8 +219,8 @@ public class ClientFrame extends JFrame {
                         }
                         // Update enemySnake with the new segments d
                         enemySnake.setSegments(segments);
-                        //appleX= dataIn.readDouble();
-                        //appleY= dataIn.readDouble();
+                        appleX= dataIn.readDouble();
+                        appleY= dataIn.readDouble();
                     }
                 }
             } catch (IOException ex) {
@@ -264,8 +263,8 @@ public class ClientFrame extends JFrame {
                             dataOut.writeDouble(segment.x);
                             dataOut.writeDouble(segment.y);
                         }
-                        //dataOut.writeDouble(appleX);
-                        //dataOut.writeDouble(appleY);
+                        dataOut.writeDouble(appleX);
+                        dataOut.writeDouble(appleY);
                         dataOut.flush();
                     }
                 }
