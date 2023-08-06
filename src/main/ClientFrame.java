@@ -232,7 +232,9 @@ public class ClientFrame extends JFrame {
 
     private void connectToServer() {
         try {
-            socket = new Socket("localhost", 2321);
+            // replace with your server ip address
+            // localhost - 127.0.0.1
+            socket = new Socket(InetAddress.getByName("127.0.0.1"), 2321);
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             playerID = in.readInt();
