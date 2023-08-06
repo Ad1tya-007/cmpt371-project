@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.awt.geom.*;
+import main.util.Constants;
 
 public class GameServer {
     private ServerSocket ss;
@@ -16,15 +19,21 @@ public class GameServer {
     private ReadFromClient p2RFC;
     private WriteToClient p1WTC;
     private WriteToClient p2WTC;
+    private Point2D.Double apple = new Point2D.Double(); // initialized;
+    private volatile int appleEatenBy = 0;  // 0 means no one, 1 means Player 1, and 2 means Player 2
+
 
     private ArrayList<double[]> p1Positions = new ArrayList<>();
     private ArrayList<double[]> p2Positions = new ArrayList<>();
 
+    private Constants constant = new Constants();
+    Random random= new Random();
 
     public GameServer() {
         System.out.println("Game Server started");
         numPlayers = 0;
         maxPlayers = 2;
+        spawnApple();
 
         // intial coordiantes of snakes
         double[] p1InitialPos = {100, 400}; // x and y coordinates for player 1
@@ -106,8 +115,15 @@ public class GameServer {
                     ArrayList<double[]> positions = playerID == 1 ? p1Positions : p2Positions;
                     synchronized (positions) {
                         positions.clear(); // Clear previous positions
-                        for (int i = 0; i < numSegments; i++) {
-                            double[] position = new double[2];
+                        double[] position = new double[2];
+                        position[0] = dataIn.readDouble(); // x coordinate
+                        position[1] = dataIn.readDouble(); // y coordinate
+                        positions.add(position);
+                        
+                        checkApple(position[0], position[1], playerID); // Check the first position
+
+                        for (int i = 1; i < numSegments; i++) {
+                            position = new double[2];
                             position[0] = dataIn.readDouble(); // x coordinate
                             position[1] = dataIn.readDouble(); // y coordinate
                             positions.add(position);
@@ -144,6 +160,17 @@ public class GameServer {
                             dataOut.flush();
                         }
                     }
+                    // Read appleX and appleY from shared location
+                    dataOut.writeDouble(apple.x);
+                    dataOut.writeDouble(apple.y);
+                    if (appleEatenBy == playerID) {
+                        notifyAppleEaten();
+                        appleEatenBy = 0;  // Reset the flag
+                    }else{
+                        dataOut.writeUTF("No Apple Eaten");
+                    }
+                    
+                    dataOut.flush();
                     Thread.sleep(25); // prevent overwhelming the network
                 }
             } catch (IOException | InterruptedException ex) {
@@ -158,7 +185,34 @@ public class GameServer {
                 System.out.println("IOexception from WriteToClient sendStartMessage()");
             }
         }
+        
+        public void notifyAppleEaten() {
+            try {
+                dataOut.writeUTF("AppleEaten"); // a simple message to denote apple is eaten
+            } catch (IOException ex) {
+                System.out.println("IOexception from WriteToClient notifyAppleEaten()");
+            }
+        }
     }
+
+    //Apple related code
+    public void spawnApple() {
+        apple.x = (double)random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
+                * constant.UNIT_SIZE;
+        apple.y= (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
+                constant.UNIT_SIZE)) * constant.UNIT_SIZE;
+    }
+
+    public void checkApple(double x, double y, int playerID) {
+        if ((x == apple.x) && (y == apple.y)) {
+            //sound.play("src/main/res/apple_eaten_sound.wav");
+            // mySnake.score();
+            // mySnake.addSegment();
+            spawnApple();
+            appleEatenBy = playerID;
+        }
+    }
+    
 
     public static void main(String[] args) {
         GameServer gs = new GameServer();

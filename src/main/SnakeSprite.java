@@ -90,4 +90,33 @@ public class SnakeSprite {
     public synchronized ArrayList<Point2D.Double> getSegments() {
         return new ArrayList<>(segments); // Return a copy of the segments
     }
+
+    public void addSegment() {
+        // Get the last segment (tail)
+        Point2D.Double tailSegment = segments.get(segments.size() - 1);
+        Point2D.Double newSegment = null;
+        
+        // Based on the current direction, calculate where the new segment should be
+        switch (currentDirection) {
+            case UP:
+                newSegment = new Point2D.Double(tailSegment.x, tailSegment.y + size);
+                break;
+            case DOWN:
+                newSegment = new Point2D.Double(tailSegment.x, tailSegment.y - size);
+                break;
+            case LEFT:
+                newSegment = new Point2D.Double(tailSegment.x + size, tailSegment.y);
+                break;
+            case RIGHT:
+                newSegment = new Point2D.Double(tailSegment.x - size, tailSegment.y);
+                break;
+        }
+    
+        if (newSegment != null) {
+            // Add the new segment to the tail-end of the ArrayList
+            segments.add(newSegment);
+        }
+    }
+    
 }
+
