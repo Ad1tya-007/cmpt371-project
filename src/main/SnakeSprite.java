@@ -4,19 +4,10 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.util.ArrayList; // Imported ArrayList class
 
-import main.util.Constants;
-
 public class SnakeSprite {
     private ArrayList<Point2D.Double> segments; // Changed to ArrayList
     private double size;
     private Color color;
-    public int bodyParts = 3;
-    private int score = 0;
-    private Constants constant = new Constants();
-
-    public void score() {
-        score += 10;
-    }
 
     public enum Direction {
         UP, DOWN, LEFT, RIGHT
@@ -32,22 +23,6 @@ public class SnakeSprite {
             segments.add(new Point2D.Double(x - i * size, y));
         }
         currentDirection = initialDirection;
-    }
-
-    public void addSegment() {
-        if (currentDirection== Direction.RIGHT) {
-            segments.add(new Point2D.Double(segments.get(bodyParts-1).x - constant.UNIT_SIZE, segments.get(bodyParts-1).y));
-        }
-        else if (currentDirection== Direction.LEFT) {
-            segments.add(new Point2D.Double(segments.get(bodyParts-1).x + constant.UNIT_SIZE, segments.get(bodyParts-1).y));
-        }
-        else if (currentDirection== Direction.UP) {
-            segments.add(new Point2D.Double(segments.get(bodyParts-1).x, segments.get(bodyParts-1).y - constant.UNIT_SIZE));
-        }
-        else if (currentDirection== Direction.DOWN) {
-            segments.add(new Point2D.Double(segments.get(bodyParts-1).x, segments.get(bodyParts-1).y + constant.UNIT_SIZE));
-        }
-        bodyParts++;
     }
 
     public void drawSnake(Graphics2D G) {
@@ -116,3 +91,4 @@ public class SnakeSprite {
         return new ArrayList<>(segments); // Return a copy of the segments
     }
 }
+

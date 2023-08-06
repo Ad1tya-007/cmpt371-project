@@ -61,21 +61,21 @@ public class ClientFrame extends JFrame {
         setUpKeyListener();
     }
 
-    public void spawnApple() {
-        appleX = (double)random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
-                * constant.UNIT_SIZE;
-        appleY = (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
-                constant.UNIT_SIZE)) * constant.UNIT_SIZE;
-    }
+    // public void spawnApple() {
+    //     appleX = (double)random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
+    //             * constant.UNIT_SIZE;
+    //     appleY = (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
+    //             constant.UNIT_SIZE)) * constant.UNIT_SIZE;
+    // }
 
-    public void checkApple() {
-        if ((mySnake.getX() == appleX) && (mySnake.getY() == appleY)) {
-            //sound.play("src/main/res/apple_eaten_sound.wav");
-            mySnake.score();
-            mySnake.addSegment();
-            spawnApple();
-        }
-    }
+    // public void checkApple() {
+    //     if ((mySnake.getX() == appleX) && (mySnake.getY() == appleY)) {
+    //         //sound.play("src/main/res/apple_eaten_sound.wav");
+    //         // mySnake.score();
+    //         // mySnake.addSegment();
+    //         spawnApple();
+    //     }
+    // }
 
     private void createSprites() {
         if (playerID == 1) {
@@ -115,7 +115,7 @@ public class ClientFrame extends JFrame {
                     mySnake.snakeMoveHorizontal(-1);
                 }
                 dc.repaint();
-                checkApple();
+                // checkApple();
             }
         };
         animationTimer = new Timer(interval, al);
@@ -263,8 +263,6 @@ public class ClientFrame extends JFrame {
                             dataOut.writeDouble(segment.x);
                             dataOut.writeDouble(segment.y);
                         }
-                        dataOut.writeDouble(appleX);
-                        dataOut.writeDouble(appleY);
                         dataOut.flush();
                     }
                 }
