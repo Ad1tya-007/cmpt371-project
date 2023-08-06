@@ -32,7 +32,7 @@ public class ClientFrame extends JFrame {
     private WriteToServer wts;
 
     private Constants constant = new Constants();
-    Random random= new Random();
+    Random random = new Random();
     Sounds sfx = new Sounds();
     Sounds bg = new Sounds();
 
@@ -44,8 +44,8 @@ public class ClientFrame extends JFrame {
         down = false;
         right = false;
         left = false;
-        appleX = (double)constant.SCREEN_WIDTH/2;
-        appleY = (double)constant.SCREEN_WIDTH/2;
+        appleX = (double) constant.SCREEN_WIDTH / 2;
+        appleY = (double) constant.SCREEN_WIDTH / 2;
     }
 
     public void setUpGUI() {
@@ -65,19 +65,20 @@ public class ClientFrame extends JFrame {
     }
 
     // public void spawnApple() {
-    //     appleX = (double)random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
-    //             * constant.UNIT_SIZE;
-    //     appleY = (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
-    //             constant.UNIT_SIZE)) * constant.UNIT_SIZE;
+    // appleX = (double)random.nextInt((int) (constant.SCREEN_WIDTH /
+    // constant.UNIT_SIZE))
+    // * constant.UNIT_SIZE;
+    // appleY = (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
+    // constant.UNIT_SIZE)) * constant.UNIT_SIZE;
     // }
 
     // public void checkApple() {
-    //     if ((mySnake.getX() == appleX) && (mySnake.getY() == appleY)) {
-    //         //sound.play("src/main/res/apple_eaten_sound.wav");
-    //         // mySnake.score();
-    //         // mySnake.addSegment();
-    //         spawnApple();
-    //     }
+    // if ((mySnake.getX() == appleX) && (mySnake.getY() == appleY)) {
+    // //sound.play("src/main/res/apple_eaten_sound.wav");
+    // // mySnake.score();
+    // // mySnake.addSegment();
+    // spawnApple();
+    // }
     // }
 
     private void createSprites() {
@@ -93,6 +94,7 @@ public class ClientFrame extends JFrame {
     }
 
     private void drawGrid(Graphics2D G) {
+        G.setColor(Color.GRAY);
         for (int i = 0; i < width; i += size) {
             G.drawLine(i, 0, i, height);
         }
@@ -104,13 +106,13 @@ public class ClientFrame extends JFrame {
     private boolean checkCollisions() {
         // Get the head of the player's snake
         Point2D.Double myHead = mySnake.getSegments().get(0);
-    
+
         // Check for collision with the border
         if (myHead.x < 0 || myHead.x >= width || myHead.y < 0 || myHead.y >= height) {
             sfx.play("src/main/res/collision_wall.wav");
             return true; // Collision with border
         }
-    
+
         // Check for collision with the opponent's snake
         ArrayList<Point2D.Double> enemySegments = enemySnake.getSegments();
         Point2D.Double enemyHead = enemySegments.get(0); // Get the head of the opponent's snake
@@ -138,20 +140,19 @@ public class ClientFrame extends JFrame {
             }
         }
 
-    
         return false; // No collisions
     }
 
-    private void gameOver(){
-        //stop animation timer
+    private void gameOver() {
+        // stop animation timer
         animationTimer.stop();
 
-        //play game over music
+        // play game over music
         sfx.play("src/main/res/game_over.wav");
 
         JOptionPane.showMessageDialog(this, "Game Over", "Game Over", JOptionPane.INFORMATION_MESSAGE);
-        
-        //stop background music
+
+        // stop background music
         bg.stop();
         this.dispose();
     }
@@ -162,18 +163,15 @@ public class ClientFrame extends JFrame {
             public void actionPerformed(ActionEvent ae) {
                 if (up) {
                     mySnake.snakeMoveVertical(-1);
-                }
-                if (down) {
+                } else if (down) {
                     mySnake.snakeMoveVertical(1);
-                }
-                if (right) {
+                } else if (right) {
                     mySnake.snakeMoveHorizontal(1);
-                }
-                if (left) {
+                } else if (left) {
                     mySnake.snakeMoveHorizontal(-1);
                 }
 
-                 // Check for collisions
+                // Check for collisions
                 if (checkCollisions()) {
                     gameOver();
                 }
@@ -256,7 +254,7 @@ public class ClientFrame extends JFrame {
             Graphics2D G2D = (Graphics2D) G;
             drawGrid(G2D);
             G.setColor(Color.red);
-            G.fillOval((int)appleX, (int)appleY, constant.UNIT_SIZE, constant.UNIT_SIZE);
+            G.fillOval((int) appleX, (int) appleY, constant.UNIT_SIZE, constant.UNIT_SIZE);
             enemySnake.drawSnake(G2D);
             mySnake.drawSnake(G2D);
         }
@@ -283,8 +281,8 @@ public class ClientFrame extends JFrame {
                         }
                         // Update enemySnake with the new segments d
                         enemySnake.setSegments(segments);
-                        appleX= dataIn.readDouble();
-                        appleY= dataIn.readDouble();
+                        appleX = dataIn.readDouble();
+                        appleY = dataIn.readDouble();
 
                         // Read the message from the server (if any)
                         String messageFromServer = dataIn.readUTF();
@@ -303,9 +301,9 @@ public class ClientFrame extends JFrame {
                 String startMessage = dataIn.readUTF();
                 System.out.println("Message from server: " + startMessage);
 
-                //play game start sound
+                // play game start sound
                 sfx.play("src/main/res/game_start.wav");
-                //play background music
+                // play background music
                 bg.loop("src/main/res/background.wav");
 
                 // after receiving start message, start the thread
