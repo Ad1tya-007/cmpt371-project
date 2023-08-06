@@ -20,6 +20,7 @@ public class GameServer {
     private WriteToClient p1WTC;
     private WriteToClient p2WTC;
     private Point2D.Double apple = new Point2D.Double(); // initialized;
+    private volatile int appleEatenBy = 0;  // 0 means no one, 1 means Player 1, and 2 means Player 2
 
 
     private ArrayList<double[]> p1Positions = new ArrayList<>();
@@ -27,7 +28,7 @@ public class GameServer {
 
     private Constants constant = new Constants();
     Random random= new Random();
-    
+
     public GameServer() {
         System.out.println("Game Server started");
         numPlayers = 0;
@@ -119,7 +120,7 @@ public class GameServer {
                         position[1] = dataIn.readDouble(); // y coordinate
                         positions.add(position);
                         
-                        checkApple(position[0], position[1]); // Check the first position
+                        checkApple(position[0], position[1], playerID); // Check the first position
 
                         for (int i = 1; i < numSegments; i++) {
                             position = new double[2];
@@ -162,6 +163,13 @@ public class GameServer {
                     // Read appleX and appleY from shared location
                     dataOut.writeDouble(apple.x);
                     dataOut.writeDouble(apple.y);
+                    if (appleEatenBy == playerID) {
+                        notifyAppleEaten();
+                        appleEatenBy = 0;  // Reset the flag
+                    }else{
+                        dataOut.writeUTF("No Apple Eaten");
+                    }
+                    
                     dataOut.flush();
                     Thread.sleep(25); // prevent overwhelming the network
                 }
@@ -177,6 +185,14 @@ public class GameServer {
                 System.out.println("IOexception from WriteToClient sendStartMessage()");
             }
         }
+        
+        public void notifyAppleEaten() {
+            try {
+                dataOut.writeUTF("AppleEaten"); // a simple message to denote apple is eaten
+            } catch (IOException ex) {
+                System.out.println("IOexception from WriteToClient notifyAppleEaten()");
+            }
+        }
     }
 
     //Apple related code
@@ -187,14 +203,16 @@ public class GameServer {
                 constant.UNIT_SIZE)) * constant.UNIT_SIZE;
     }
 
-    public void checkApple(double x, double y) {
+    public void checkApple(double x, double y, int playerID) {
         if ((x == apple.x) && (y == apple.y)) {
             //sound.play("src/main/res/apple_eaten_sound.wav");
             // mySnake.score();
             // mySnake.addSegment();
             spawnApple();
+            appleEatenBy = playerID;
         }
     }
+    
 
     public static void main(String[] args) {
         GameServer gs = new GameServer();

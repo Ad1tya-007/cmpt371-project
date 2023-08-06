@@ -191,10 +191,10 @@ public class ClientFrame extends JFrame {
         protected void paintComponent(Graphics G) {
             Graphics2D G2D = (Graphics2D) G;
             drawGrid(G2D);
-            enemySnake.drawSnake(G2D);
-            mySnake.drawSnake(G2D);
             G.setColor(Color.red);
             G.fillOval((int)appleX, (int)appleY, constant.UNIT_SIZE, constant.UNIT_SIZE);
+            enemySnake.drawSnake(G2D);
+            mySnake.drawSnake(G2D);
         }
     }
 
@@ -221,6 +221,12 @@ public class ClientFrame extends JFrame {
                         enemySnake.setSegments(segments);
                         appleX= dataIn.readDouble();
                         appleY= dataIn.readDouble();
+
+                        // Read the message from the server (if any)
+                        String messageFromServer = dataIn.readUTF();
+                        if ("AppleEaten".equals(messageFromServer)) {
+                            mySnake.addSegment();
+                        }
                     }
                 }
             } catch (IOException ex) {
