@@ -14,6 +14,7 @@ import java.net.*;
 import java.util.Random;
 import java.util.ArrayList; // Imported ArrayList class
 
+// class for handling client
 public class ClientFrame extends JFrame {
     private int width, height, size;
     // Apple coordinates.
@@ -39,6 +40,7 @@ public class ClientFrame extends JFrame {
     Sounds sfx = new Sounds();
     Sounds bg = new Sounds();
 
+    // initialize variables of the client frame
     public ClientFrame() {
         width = constant.SCREEN_WIDTH;
         height = constant.SCREEN_HEIGHT;
@@ -51,6 +53,7 @@ public class ClientFrame extends JFrame {
         appleY = (double) constant.SCREEN_WIDTH / 2;
     }
 
+    // function to setup the GUI of the client
     public void setUpGUI() {
         contentPane = this.getContentPane();
         this.setTitle("Snake Fight Player " + playerID);
@@ -68,12 +71,14 @@ public class ClientFrame extends JFrame {
         setUpKeyListener();
     }
 
-
+    // function to initialize the snakes for the clients
     private void createSprites() {
+        // if client is player1
         if (playerID == 1) {
             mySnake = new SnakeSprite(100, 400, size, Color.BLUE, 3, SnakeSprite.Direction.RIGHT);
             enemySnake = new SnakeSprite(500, 400, size, Color.GREEN, 3, SnakeSprite.Direction.LEFT);
         }
+        // if client is player2
         if (playerID == 2) {
             enemySnake = new SnakeSprite(100, 400, size, Color.BLUE, 3, SnakeSprite.Direction.RIGHT);
             mySnake = new SnakeSprite(500, 400, size, Color.GREEN, 3, SnakeSprite.Direction.LEFT);
@@ -81,6 +86,7 @@ public class ClientFrame extends JFrame {
 
     }
 
+    // draw the grid of the board
     private void drawGrid(Graphics2D G) {
         G.setColor(Color.GRAY);
         for (int i = 0; i < width; i += size) {
@@ -91,6 +97,8 @@ public class ClientFrame extends JFrame {
         }
     }
 
+    // this function checks for collisions of the clients snake with the wall, enemy
+    // snake and itself
     private boolean checkCollisions() {
         // Get the head of the player's snake
         Point2D.Double myHead = mySnake.getSegments().get(0);
@@ -131,6 +139,7 @@ public class ClientFrame extends JFrame {
         return false; // No collisions
     }
 
+    // display a dialog saying "GAME OVER" when the client snake dies
     private void gameOver() {
         // stop animation timer
         animationTimer.stop();
@@ -145,8 +154,12 @@ public class ClientFrame extends JFrame {
         this.dispose();
     }
 
+    // set up the animation timer of the game
     private void setUpAnimationTimer() {
         int interval = 100;
+        // sees which key was pressed and performs actions of the snake
+        // followed by checking for collisions
+        // repainting the snake on the board
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 // Controls snake's direction.
@@ -172,12 +185,14 @@ public class ClientFrame extends JFrame {
         animationTimer.start();
     }
 
+    // function to see which key was pressed or released
     private void setUpKeyListener() {
         KeyListener kl = new KeyListener() {
             public void keyTyped(KeyEvent ke) {
 
             }
 
+            // function to see which key was pressed
             public void keyPressed(KeyEvent ke) {
                 int keyCode = ke.getKeyCode();
                 switch (keyCode) {
@@ -196,6 +211,7 @@ public class ClientFrame extends JFrame {
                 }
             }
 
+            // function to see which key was released
             public void keyReleased(KeyEvent ke) {
                 int keyCode = ke.getKeyCode();
                 switch (keyCode) {
@@ -214,10 +230,13 @@ public class ClientFrame extends JFrame {
                 }
             }
         };
+
+        // add keyListner to the game
         contentPane.addKeyListener(kl);
         contentPane.setFocusable(true);
     }
 
+    // function to connect client to the server
     private void connectToServer() {
         try {
             // replace with your server ip address
@@ -239,6 +258,8 @@ public class ClientFrame extends JFrame {
         }
     }
 
+    // class to draw the elements in the board
+    // grid, apple and snakes
     private class DrawingComponent extends JComponent {
         protected void paintComponent(Graphics G) {
             Graphics2D G2D = (Graphics2D) G;
@@ -250,6 +271,7 @@ public class ClientFrame extends JFrame {
         }
     }
 
+    // class to read data from the server
     private class ReadFromServer implements Runnable {
         private DataInputStream dataIn;
 
@@ -258,6 +280,7 @@ public class ClientFrame extends JFrame {
             System.out.println("RFS Runnable created");
         }
 
+        // automatically read data from the server
         public void run() {
             try {
                 while (true) {
@@ -286,6 +309,7 @@ public class ClientFrame extends JFrame {
             }
         }
 
+        // wait for a start message from server before starting the game
         public void waitForStartMessage() {
             try {
                 String startMessage = dataIn.readUTF();
@@ -308,6 +332,7 @@ public class ClientFrame extends JFrame {
         }
     }
 
+    // class to write data to the server
     private class WriteToServer implements Runnable {
         private DataOutputStream dataOut;
 
@@ -316,6 +341,7 @@ public class ClientFrame extends JFrame {
             System.out.println("WTS Runnable created");
         }
 
+        // automaticaly write data to the client
         public void run() {
             try {
                 while (true) {
@@ -336,6 +362,7 @@ public class ClientFrame extends JFrame {
         }
     }
 
+    // main function to run the clientFrame
     public static void main(String[] args) {
         ClientFrame cf = new ClientFrame();
         cf.connectToServer();

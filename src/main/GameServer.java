@@ -7,6 +7,7 @@ import java.util.Random;
 import java.awt.geom.*;
 import main.util.Constants;
 
+// class for handling server
 public class GameServer {
     private ServerSocket ss;
     private int numPlayers;
