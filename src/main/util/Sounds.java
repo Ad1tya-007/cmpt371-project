@@ -14,19 +14,21 @@ public class Sounds {
     private Clip clip;
 
     /**
-     * creates the sound object
+     * creates the sound object and set volume
      */
     public Sounds() {
         volume = -20.0f;
     }
     
     /**
-     * plays sound
+     * fuction plays sound one time
      */
     public void play(String musicLocation) {
         try {
             File musicPath = new File(musicLocation);
+            /* check if path exists, if true play sound, else send error message*/
             if (musicPath.exists()) {
+                /*open audio file and starts clip, audio will stop once file is done playing*/
                 AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
                 clip = AudioSystem.getClip();
                 clip.open(audioInput);
@@ -41,13 +43,15 @@ public class Sounds {
         }
     }
 
-    /* play background soundtrack in loop*/
+    /* function to play background soundtrack in loop*/
     public void loop(String musicLocation) {
         try {
             File musicPath = new File(musicLocation);
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
-            clip = AudioSystem.getClip();
+            /* check if path exists, if true play sound, else send error message*/
             if (musicPath.exists()) {
+                /*open audio file and start clip, clip will play in a continous loop*/
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
+                clip = AudioSystem.getClip();
                 clip.open(audioInput);
                 fc = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
                 fc.setValue(volume);
@@ -60,7 +64,7 @@ public class Sounds {
             e.printStackTrace();
         }
     }
-    /* stop background soundtrack once gameover */
+    /* call this function to stop background soundtrack once gameover */
     public void stop(){
         clip.stop();
     }
