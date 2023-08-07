@@ -1,3 +1,4 @@
+
 package main;
 
 import java.io.*;
@@ -20,14 +21,13 @@ public class GameServer {
     private WriteToClient p1WTC;
     private WriteToClient p2WTC;
     private Point2D.Double apple = new Point2D.Double(); // initialized;
-    private volatile int appleEatenBy = 0;  // 0 means no one, 1 means Player 1, and 2 means Player 2
-
+    private volatile int appleEatenBy = 0; // 0 means no one, 1 means Player 1, and 2 means Player 2
 
     private ArrayList<double[]> p1Positions = new ArrayList<>();
     private ArrayList<double[]> p2Positions = new ArrayList<>();
 
     private Constants constant = new Constants();
-    Random random= new Random();
+    Random random = new Random();
 
     public GameServer() {
         System.out.println("Game Server started");
@@ -36,8 +36,8 @@ public class GameServer {
         spawnApple();
 
         // intial coordiantes of snakes
-        double[] p1InitialPos = {100, 400}; // x and y coordinates for player 1
-        double[] p2InitialPos = {500, 400}; // x and y coordinates for player 2
+        double[] p1InitialPos = { 100, 400 }; // x and y coordinates for player 1
+        double[] p2InitialPos = { 500, 400 }; // x and y coordinates for player 2
         p1Positions.add(p1InitialPos);
         p2Positions.add(p2InitialPos);
 
@@ -48,6 +48,7 @@ public class GameServer {
         }
     }
 
+    // function to accept connections to the server
     public void acceptConnections() {
         try {
             System.out.println("Waiting for connections...");
@@ -98,6 +99,7 @@ public class GameServer {
         }
     }
 
+    // class to Read data from Client
     private class ReadFromClient implements Runnable {
         private int playerID;
         private DataInputStream dataIn;
@@ -108,6 +110,7 @@ public class GameServer {
             System.out.println("RFC " + playerID + " Runnable created");
         }
 
+        // reading data automatically from both the clients
         public void run() {
             try {
                 while (true) {
@@ -119,7 +122,7 @@ public class GameServer {
                         position[0] = dataIn.readDouble(); // x coordinate
                         position[1] = dataIn.readDouble(); // y coordinate
                         positions.add(position);
-                        
+
                         checkApple(position[0], position[1], playerID); // Check the first position
 
                         for (int i = 1; i < numSegments; i++) {
@@ -136,6 +139,7 @@ public class GameServer {
         }
     }
 
+    // Class to Write data to the Client
     private class WriteToClient implements Runnable {
         private int playerID;
         private DataOutputStream dataOut;
@@ -146,6 +150,7 @@ public class GameServer {
             System.out.println("WTC " + playerID + " Runnable created");
         }
 
+        // sending data automatically to both the clients
         public void run() {
             try {
                 while (true) {
@@ -165,11 +170,11 @@ public class GameServer {
                     dataOut.writeDouble(apple.y);
                     if (appleEatenBy == playerID) {
                         notifyAppleEaten();
-                        appleEatenBy = 0;  // Reset the flag
-                    }else{
+                        appleEatenBy = 0; // Reset the flag
+                    } else {
                         dataOut.writeUTF("No Apple Eaten");
                     }
-                    
+
                     dataOut.flush();
                     Thread.sleep(25); // prevent overwhelming the network
                 }
@@ -177,7 +182,8 @@ public class GameServer {
                 System.out.println("Exception from WriteToClient run()");
             }
         }
-        
+
+        // send the client the start message when both players join the server
         public void sendStartMessage() {
             try {
                 dataOut.writeUTF("We now have two players. Start the match!");
@@ -185,7 +191,8 @@ public class GameServer {
                 System.out.println("IOexception from WriteToClient sendStartMessage()");
             }
         }
-        
+
+        // notify the client that the apple has been eaten
         public void notifyAppleEaten() {
             try {
                 dataOut.writeUTF("AppleEaten"); // a simple message to denote apple is eaten
@@ -195,25 +202,26 @@ public class GameServer {
         }
     }
 
-    //Apple related code
+    // function to spawn apple coordinates
     public void spawnApple() {
-        apple.x = (double)random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
+        apple.x = (double) random.nextInt((int) (constant.SCREEN_WIDTH / constant.UNIT_SIZE))
                 * constant.UNIT_SIZE;
-        apple.y= (double)random.nextInt((int) (constant.SCREEN_HEIGHT /
+        apple.y = (double) random.nextInt((int) (constant.SCREEN_HEIGHT /
                 constant.UNIT_SIZE)) * constant.UNIT_SIZE;
     }
 
+    // function to check if apple is eaten
     public void checkApple(double x, double y, int playerID) {
         if ((x == apple.x) && (y == apple.y)) {
-            //sound.play("src/main/res/apple_eaten_sound.wav");
+            // sound.play("src/main/res/apple_eaten_sound.wav");
             // mySnake.score();
             // mySnake.addSegment();
             spawnApple();
             appleEatenBy = playerID;
         }
     }
-    
 
+    // main function
     public static void main(String[] args) {
         GameServer gs = new GameServer();
         gs.acceptConnections();
