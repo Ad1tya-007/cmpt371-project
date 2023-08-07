@@ -13,8 +13,10 @@ public class SnakeSprite {
         UP, DOWN, LEFT, RIGHT
     }
 
+    // Snake's direction of movement.
     private Direction currentDirection;
 
+    // Initializes the snake.
     public SnakeSprite(double x, double y, double s, Color c, int length, Direction initialDirection) {
         size = s;
         color = c;
@@ -91,6 +93,7 @@ public class SnakeSprite {
         return new ArrayList<>(segments); // Return a copy of the segments
     }
 
+    // Function to increment length of snake.
     public void addSegment() {
         // Get the last segment (tail)
         Point2D.Double tailSegment = segments.get(segments.size() - 1);
