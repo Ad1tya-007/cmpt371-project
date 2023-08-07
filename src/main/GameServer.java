@@ -1,10 +1,8 @@
-
 package main;
 
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.awt.geom.*;
 import main.util.Constants;
@@ -29,6 +27,7 @@ public class GameServer {
     private Constants constant = new Constants();
     Random random = new Random();
 
+    // initialize the game server
     public GameServer() {
         System.out.println("Game Server started");
         numPlayers = 0;
@@ -65,11 +64,13 @@ public class GameServer {
                 ReadFromClient rfc = new ReadFromClient(numPlayers, in);
                 WriteToClient wtc = new WriteToClient(numPlayers, out);
 
+                // if player 1 joins
                 if (numPlayers == 1) {
                     p1Socket = s;
                     p1RFC = rfc;
                     p1WTC = wtc;
                 }
+                // if player 2 joins
                 if (numPlayers == 2) {
                     p2Socket = s;
                     p2RFC = rfc;
@@ -104,6 +105,7 @@ public class GameServer {
         private int playerID;
         private DataInputStream dataIn;
 
+        // initialize the ReadFromClient
         public ReadFromClient(int pid, DataInputStream in) {
             playerID = pid;
             dataIn = in;
@@ -144,6 +146,7 @@ public class GameServer {
         private int playerID;
         private DataOutputStream dataOut;
 
+        // initialize the WriteToClient
         public WriteToClient(int pid, DataOutputStream out) {
             playerID = pid;
             dataOut = out;
@@ -211,6 +214,8 @@ public class GameServer {
     }
 
     // function to check if apple is eaten
+    // input x and y are the apples coordinates
+    // playerId is the player who ate the apple
     public void checkApple(double x, double y, int playerID) {
         if ((x == apple.x) && (y == apple.y)) {
             // sound.play("src/main/res/apple_eaten_sound.wav");
