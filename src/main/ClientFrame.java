@@ -16,9 +16,11 @@ import java.util.ArrayList; // Imported ArrayList class
 
 public class ClientFrame extends JFrame {
     private int width, height, size;
+    // Apple coordinates.
     double appleX, appleY;
     private Container contentPane;
 
+    // Snake objects for clients.
     private SnakeSprite mySnake;
     private SnakeSprite enemySnake;
 
@@ -54,6 +56,7 @@ public class ClientFrame extends JFrame {
         this.setTitle("Snake Fight Player " + playerID);
         contentPane.setPreferredSize(new Dimension(width, height));
         contentPane.setBackground(Color.BLACK);
+        // Initializes snakes and sets their location on the window.
         createSprites();
         dc = new DrawingComponent();
         contentPane.add(dc);
@@ -335,6 +338,7 @@ public class ClientFrame extends JFrame {
                     if (mySnake != null) {
                         ArrayList<Point2D.Double> segments = mySnake.getSegments();
                         dataOut.writeInt(segments.size()); // Sending the number of segments
+                        // Send snake coordinates to server.
                         for (Point2D.Double segment : segments) {
                             dataOut.writeDouble(segment.x);
                             dataOut.writeDouble(segment.y);
